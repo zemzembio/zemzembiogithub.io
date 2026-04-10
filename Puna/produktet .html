@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Zem Zem Bio Produkt</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #050705;
+      color: #e5e5e5;
+      font-family: Inter;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* BUTTON */
+    .btn {
+      background: linear-gradient(135deg, #8fbf9f, #a8d5b5);
+      color: black;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(143, 191, 159, 0.5);
+    }
+
+    /* INPUT */
+    .input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .input:focus {
+      border-color: #8fbf9f;
+      box-shadow: 0 0 15px rgba(143, 191, 159, 0.4);
+    }
+
+    /* SCROLL BAR PROGRESS */
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: #8fbf9f;
+      width: 0%;
+      z-index: 100;
+    }
+
+    /* ANIMATIONS */
+    .reveal {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: 1s ease;
+    }
+
+    .reveal.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-100px);
+      transition: 1s ease;
+    }
+
+    .reveal-left.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(100px);
+      transition: 1s ease;
+    }
+
+    .reveal-right.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* CARD 3D */
+    .card {
+      transform-style: preserve-3d;
+      transition: 0.3s;
+    }
+
+    /* WISHLIST */
+    .wish {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .wish.active {
+      color: gold;
+    }
+
+    /* CART */
+    #cart {
+      top: 80px;
+      height: calc(100% - 80px);
+      transition: 0.4s;
+      border-radius: 30px;
+    }
+
+    /* PARALLAX */
+
+    body {
+      background: url("background.jpg") no-repeat center;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    /* overlay që ta bëjë më dark (super e rëndësishme) */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      /* errëson foton */
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="progress"></div>
+  <div id="parallax"></div>
+
+  <!-- HEADER -->
+  <header class="fixed w-full z-50 glass">
+    <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+      <img src="logo.png" class="h-10 float" style="width:75px;height:75px;">
+      <h1 id="tit">Zem Zem Bio Produkt</h1>
+      <a href="index.html" class="btn px-10 py-4 rounded-full">Kthehu</a></a>
+      <button onclick="toggleCart()" class="text-xl hover:scale-110 transition">
+        🛒 <span id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="h-20"></div>
+
+  <section class="max-w-6xl mx-auto py-10">
+
+    <input id="search" placeholder="Kërko..." class="input w-full mb-4">
+
+    <select id="priceFilter" class="input w-full mb-6">
+      <option value="all">Të gjitha</option>
+      <option value="0-5">0-5€</option>
+      <option value="5-10">5-10€</option>
+      <option value="10-15">10-15€</option>
+      <option value="15-20">15-20€</option>
+      <option value="20-30">20-30€</option>
+      <option value="30-50">30-50€</option>
+      <option value="50+">50€+</option>
+    </select>
+
+    <div id="products" class="grid md:grid-cols-3 gap-6"></div>
+    <div id="pagination" class="flex justify-center mt-10 gap-2"></div>
+
+  </section>
+
+  <!-- CART -->
+  <div id="cart" class="fixed right-0 w-80 glass p-5 translate-x-full z-50">
+    <h2 class="text-xl mb-4">Shporta</h2>
+  
+    <div id="cart-items" class="mb-3"></div>
+    <p id="cart-empty" class="text-gray-400">Shporta është bosh</p>
+  
+    <p class="mt-2 font-bold">Total: €<span id="total">0</span></p>
+  
+    <button id="checkout-btn" class="btn w-full mt-4 py-2 rounded">
+      Bli Tani
+    </button>
+  </div>
+
+  <script>
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    let currentPage = 1;
+    const perPage = 12;
+
+    let products = [
+      {
+        name: "Lattafa Khamrah",
+        price: "30",
+        img: "images/latafakhamrah.png",
+      },
+      {
+        name: "Shkronjat e Kuranit",
+        price: "5",
+        img: "images/ShkronjateKuranit.png",
+      },{
+        name: "Hurme",
+        price: "15",
+        img: "images/hurme.png",
+      },{
+        name: "Sferë Elegante",
+        price: "10",
+        img: "images/dec.png",
+      },{
+        name: "Sexhade Pelushi e Bardhe",
+        price: "30",
+        img: "images/Sexhdebardh.png",
+      },{
+        name: "Sexhade Pelushi Roze",
+        price: "30",
+        img: "images/Sexhdepink.png",
+      },{
+        name: "Sexhade Pelushi e Kuqe",
+        price: "30",
+        img: "images/Sexhdekuqe.png",
+      },{
+        name: "Sexhade Pelushi e Zeze",
+        price: "30",
+        img: "images/Sexhdezeze.png",
+      },{
+        name: "Lattafa Asad",
+        price: "30",
+        img: "images/asad.png",
+      },{
+        name: "Lattafa Yara Rose",
+        price: "30",
+        img: "images/yara.png",
+      },{
+        name: "Lattafa Asad Bourbon",
+        price: "30",
+        img: "images/bourbon.png",
+      },
+      {
+        name: "24 Carat White Gold",
+        price: "29",
+        img: "images/24carat.png",
+      },{
+        name: "1 pako (12 bustina)",
+        price: "15",
+        img: "images/potenca.png",
+      },{
+        name: "2 pako (24 bustina)",
+        price: "25",
+        img: "images/potenca.png",
+      },{
+        name: "1 tegull (240gr) ",
+        price: "12",
+        img: "images/potenca.png",
+      },{
+        name: "2 tegulla (480gr) ",
+        price: "20",
+        img: "images/potenca.png",
+      },{
+        name: "Seti i Plotë Dr Rashel Collagen Multi-Lift Ultra",
+        price: "35",
+        img: "images/collagen.png",
+      },{
+        name: "Mjalte me Fare e Zeze",
+        price: "20",
+        img: "images/fare.png",
+      },{
+        name: "SPIRULINA",
+        price: "20",
+        img: "images/spiru.png",
+      },{
+        name: "Yara 2 Cope",
+        price: "12",
+        img: "images/yaraaa.png",
+      },{
+        name: "Lattafa Khamrah Dukhan",
+        price: "30",
+        img: "images/Dukhan.png",
+      },
+      {
+        name: "24 Carat White Gold Eau De Parfum",
+        price: "30",
+        img: "images/24carateaudeparfum.png",
+      },{
+        name: "Khumar Cafe",
+        price: "30",
+        img: "images/khumar cafe.png",
+      },{
+        name: "Khumar",
+        price: "30",
+        img: "images/khumar.png",
+      },{
+        name: "Lattafa Rouge",
+        price: "25",
+        img: "images/rouge.png",
+      },{
+        name: "Lattafa Ejaazi",
+        price: "30",
+        img: "images/ejaazi.png",
+      },{
+        name: "Lattafa Najdia",
+        price: "21",
+        img: "images/najdia.png",
+      },{
+        name: "Black Latin Orchid",
+        price: "30",
+        img: "images/orchid.png",
+      },{
+        name: "Opim Noir",
+        price: "30",
+        img: "images/noir.png",
+      },{
+        name: "Ameer Al Oudh",
+        price: "30",
+        img: "images/ameer.png",
+      },{
+        name: "L'Homme Intense",
+        price: "30",
+        img: "images/homeintense.png",
+      },
+      {
+        name: "Ombre Noise",
+        price: "30",
+        img: "images/ombrenoise.png",
+      },{
+        name: "Sabaja",
+        price: "30",
+        img: "images/sabaja.png",
+      },{
+        name: "Haramain Amber Oud",
+        price: "30",
+        img: "images/haramain.png",
+      },{
+        name: "Lattafa Yara",
+        price: "30",
+        img: "images/latafayara.png",
+      },{
+        name: "Maca Powder Raw",
+        price: "20",
+        img: "images/maca.png",
+      },{
+        name: "Pure Collagen Powder",
+        price: "20",
+        img: "images/collagenpure.png",
+      },{
+        name: "Matcha Powder",
+        price: "20",
+        img: "images/matcha.png",
+      },{
+        name: "Sexhade Elektrike",
+        price: "30",
+        img: "images/sexhadeelekrike.png",
+      },{
+        name: "Hurme Palestineze 1Kg",
+        price: "15",
+        img: "images/hurmepales.png",
+      },
+    ];
+    for (let i = 1; i <= 39; i++) {
+      products.push({
+        name: "Produkt " + i,
+        price: Math.floor(Math.random() * 60) + 1,
+        img: "https://via.placeholder.com/300",
+      });
+    }
+
+    function render() {
+      let search = document.getElementById("search").value.toLowerCase();
+      let price = document.getElementById("priceFilter").value;
+
+      let filtered = products.filter(p => {
+        let s = p.name.toLowerCase().includes(search);
+        let pr = true;
+        if (price != "all") {
+          let [min, max] = price.split("-");
+          if (price == "50+") pr = p.price >= 50;
+          else pr = p.price >= min && p.price <= max;
+        }
+        return s && pr;
+      });
+
+      let start = (currentPage - 1) * perPage;
+      let items = filtered.slice(start, start + perPage);
+
+      let container = document.getElementById("products");
+      container.innerHTML = "";
+
+      items.forEach((p, index) => {
+        let isWish = wishlist.find(w => w.name == p.name);
+
+        let anim = index % 3 == 0 ? "reveal-left" : index % 3 == 1 ? "reveal" : "reveal-right";
+
+        container.innerHTML += `
+    <div class="glass p-4 rounded card ${anim} relative">
+
+      <div class="wish ${isWish ? "active" : ""}" onclick="toggleWish('${p.name}',this)">
+        ${isWish ? "⭐" : "☆"}
+      </div>
+
+      <img src="${p.img}" class="w-full h-40 object-cover mb-3 rounded">
+
+      <h3>${p.name}</h3>
+      <p>€${p.price}</p>
+
+      <button onclick="addToCart('${p.name}',${p.price})"
+      class="btn w-full mt-3 py-2 rounded">Shto</button>
+
+    </div>`;
+      });
+
+      renderPagination(filtered.length);
+      scrollReveal();
+      tiltEffect();
+    }
+
+    function renderPagination(total) {
+      let pages = Math.ceil(total / perPage);
+      let div = document.getElementById("pagination");
+      div.innerHTML = "";
+      for (let i = 1; i <= pages; i++) {
+        div.innerHTML += `<button onclick="goPage(${i})" class="btn px-3 py-1">${i}</button>`;
+      }
+    }
+
+    function goPage(p) { currentPage = p; render(); window.scrollTo(0, 0); }
+
+    function addToCart(n, p) {
+  cart.push({ n, p });
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCart();
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCart();
+}
+
+function updateCart() {
+  let cartItems = document.getElementById("cart-items");
+  let totalEl = document.getElementById("total");
+  let emptyEl = document.getElementById("cart-empty");
+
+  if (cart.length === 0) {
+    cartItems.innerHTML = "";
+    totalEl.innerText = "0";
+    emptyEl.style.display = "block";
+  } else {
+    emptyEl.style.display = "none";
+
+    let total = 0;
+    let html = "";
+
+    cart.forEach((item, index) => {
+      total += item.p;
+      html += `
+        <div class="flex justify-between items-center mb-2">
+          <span>${item.n} €${item.p}</span>
+          <button onclick="removeFromCart(${index})" class="text-red-500 font-bold">X</button>
+        </div>
+      `;
+    });
+
+    cartItems.innerHTML = html;
+    totalEl.innerText = total;
+  }
+
+  document.getElementById("cart-count").innerText = cart.length;
+}
+    function toggleCart() { document.getElementById("cart").classList.toggle("translate-x-full"); }
+
+    function toggleWish(name, el) {
+      let ex = wishlist.find(p => p.name == name);
+      if (ex) { wishlist = wishlist.filter(p => p.name != name); el.innerHTML = "☆"; el.classList.remove("active"); }
+      else { wishlist.push({ name }); el.innerHTML = "⭐"; el.classList.add("active"); }
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    }
+
+    /* SCROLL REVEAL */
+    function scrollReveal() {
+      document.querySelectorAll(".reveal, .reveal-left, .reveal-right").forEach((el, i) => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+          setTimeout(() => el.classList.add("show"), i * 50);
+        }
+      });
+    }
+
+    /* PROGRESS BAR */
+    window.addEventListener("scroll", () => {
+      let h = document.documentElement.scrollHeight - window.innerHeight;
+      let sc = (window.scrollY / h) * 100;
+      document.getElementById("progress").style.width = sc + "%";
+
+      // parallax
+      document.getElementById("parallax").style.transform = `translateY(${window.scrollY * 0.2}px)`;
+    });
+
+    /* 3D TILT */
+    function tiltEffect() {
+      document.querySelectorAll(".card").forEach(card => {
+        card.onmousemove = e => {
+          let x = (e.offsetX / card.clientWidth - 0.5) * 20;
+          let y = (e.offsetY / card.clientHeight - 0.5) * -20;
+          card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+        };
+        card.onmouseleave = () => card.style.transform = "rotateY(0) rotateX(0)";
+      });
+    }
+
+    document.getElementById("search").addEventListener("input", () => { currentPage = 1; render(); });
+    document.getElementById("priceFilter").addEventListener("change", () => { currentPage = 1; render(); });
+
+    updateCart();
+    render();
+    document.getElementById("checkout-btn").addEventListener("click", () => {
+    localStorage.setItem("checkoutCart", JSON.stringify(cart));
+    window.location.href = "cart.html";
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zem Zem Bio Produkt</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:Inter;
+  background:#050705;
+  color:#e5e5e5;
+  scroll-behavior:smooth;
+  overflow-x:hidden;
+}
+
+/* Tituj */
+#tit{ font-size: 35px; }
+h1,h2,h3{ font-family:Playfair Display; }
+
+/* Glass effect */
+.glass{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* Buttons */
+.btn{
+  background:linear-gradient(135deg,#8fbf9f,#a8d5b5);
+  color:black;
+  transition:0.4s;
+}
+.btn:hover{
+  transform:scale(1.08);
+  box-shadow:0 0 40px rgba(143,191,159,0.7);
+}
+
+/* Fade animations */
+.fade{
+  opacity:0;
+  transform:translateY(80px);
+  transition:1s ease;
+}
+.fade.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Fade left/right */
+.fade-left{
+  opacity:0;
+  transform:translateX(-100vw);
+  transition:1s ease;
+}
+.fade-left.show{ transform:translateX(0); opacity:1; }
+
+.fade-right{
+  opacity:0;
+  transform:translateX(100vw);
+  transition:1s ease;
+}
+.fade-right.show{ transform:translateX(0); opacity:1; }
+
+/* Glow + Float */
+.glow{
+  box-shadow:10px 10px 60px rgba(143,191,159,0.15);
+  border-radius: 100%;
+}
+.float{
+  animation:float 5s ease-in-out infinite;
+}
+@keyframes float{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-20px);}
+  100%{transform:translateY(0);}
+}
+
+/* Parallax background */
+#bg div{
+  animation:slowZoom 20s ease-in-out infinite;
+}
+@keyframes slowZoom{
+  0%{transform:scale(1.1);}
+  50%{transform:scale(1.2);}
+  100%{transform:scale(1.1);}
+}
+
+/* Hero Section Images - absolute skajet */
+.left-img{
+  position:absolute;
+  top:25%;
+  left:0;
+  transform:translateY(-50%);
+  z-index:5;
+}
+.right-img{
+  position:absolute;
+  top:25%;
+  right:0;
+  transform:translateY(-50%);
+  z-index:5;
+}
+
+canvas{ pointer-events:none; }
+
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<header class="fixed w-full z-50 glass">
+  <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+    <img src="logo.png" class="h-10 float" style="width:100px;height:100px;">
+    <h1 id="tit" style="margin-right: 500px;">Zem Zem Bio Produkt</h1>
+    <button onclick="toggleCart()" class="text-xl hover:scale-110 transition"  style="display: none;">
+      🛒 <span id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- HERO VIDEO SECTION -->
+<section class="relative h-screen flex items-center justify-center text-center overflow-hidden">
+
+  <!-- VIDEO BACKGROUND -->
+  <video autoplay muted loop class="absolute w-full h-full object-cover">
+    <source src="bg.mp4" type="video/mp4">
+  </video>
+
+  <div class="absolute inset-0 bg-black/70"></div>
+
+  <!-- LEFT IMAGE -->
+  <div class="left-img fade-left">
+    <img src="milk.png" class="w-80 md:w-[500px] object-contain">
+  </div>
+
+  <!-- RIGHT IMAGE -->
+  <div class="right-img fade-right">
+    <img src="dates.png" class="w-80 md:w-[500px] object-contain">
+  </div>
+
+  <!-- CENTER CONTENT -->
+  <div class="relative z-10 fade">
+    <img src="logo.png" class="w-40 mx-auto mb-6 float glow">
+    <h1 class="text-6xl mb-6">Zem Zem Bio Produkt</h1>
+    <p class="text-gray-300 mb-8">Natyrë me besim. Bukuri me etikë.</p>
+    <a href="produktet .html" class="btn px-10 py-4 rounded-full">Blej Tani</a>
+  </div>
+
+</section>
+
+<!-- PARALLAX SECTION -->
+<section class="py-32 text-center relative overflow-hidden" id="parallax">
+  <div id="bg" class="absolute inset-0 will-change-transform">
+    <div class="absolute inset-0 bg-cover bg-center scale-110"
+         style="background-image:url('background.jpg');"></div>
+  </div>
+
+  <canvas id="particles" class="absolute inset-0"></canvas>
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80"></div>
+  <div id="glow" class="pointer-events-none absolute w-72 h-72 bg-green-300/20 blur-3xl rounded-full"></div>
+
+  <div class="relative z-10 fade">
+    <h2 class="text-5xl mb-6">Cilësi që ndjehet</h2>
+    <p class="max-w-xl mx-auto text-gray-300">
+      Çdo produkt është zgjedhur me kujdes për të ofruar përvojë premium dhe natyrale.
+    </p>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+
+
+<!-- CTA -->
+<section class="py-32 text-center fade">
+  <h2 class="text-5xl mb-6">Gati për të jetuar më mirë?</h2>
+  <a href="produktet .html" class="btn px-12 py-5 rounded-full text-lg">Porosit Tani</a>
+</section>
+
+<!-- CART -->
+<div id="cart" class="fixed right-0 top-0 w-80 h-full glass p-5 transform translate-x-full transition duration-500">
+  <h2 class="text-xl mb-4">Shporta</h2>
+  <div id="cart-items"></div>
+  <p class="mt-4 font-bold">Totali: €<span id="total">0</span></p>
+  <input id="name" placeholder="Emri" class="w-full bg-black border p-2 mt-3 rounded">
+  <input id="phone" placeholder="Numri" class="w-full bg-black border p-2 mt-2 rounded">
+  <button onclick="sendOrder()" class="btn w-full mt-4 py-3 rounded">Porosit</button>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function toggleCart(){ document.getElementById("cart").classList.toggle("translate-x-full"); }
+function addToCart(name,price){ cart.push({name,price}); localStorage.setItem("cart",JSON.stringify(cart)); updateCart(); }
+function updateCart(){
+  let items = document.getElementById("cart-items"); items.innerHTML=""; let total=0;
+  cart.forEach(i=>{ total+=i.price; items.innerHTML+=`<p>${i.name} - €${i.price}</p>`; });
+  document.getElementById("total").innerText=total;
+  document.getElementById("cart-count").innerText=cart.length;
+}
+function sendOrder(){
+  let name=document.getElementById("name").value;
+  let phone=document.getElementById("phone").value;
+  let msg="Porosi:%0A";
+  cart.forEach(i=>{ msg+=`${i.name} - €${i.price}%0A`; });
+  msg+=`Total: €${document.getElementById("total").innerText}%0A`;
+  msg+=`Emri: ${name}%0ANumri: ${phone}`;
+  window.open(`https://wa.me/38345817901?text=${msg}`);
+}
+updateCart();
+
+// Scroll reveal
+const faders = document.querySelectorAll(".fade");
+const fadersLeft = document.querySelectorAll(".fade-left");
+const fadersRight = document.querySelectorAll(".fade-right");
+
+window.addEventListener("scroll", ()=>{
+  faders.forEach(el=>{ if(el.getBoundingClientRect().top < window.innerHeight-100) el.classList.add("show"); });
+  fadersLeft.forEach(el=>{ if(el.getBoundingClientRect().top < window.innerHeight-100) el.classList.add("show"); });
+  fadersRight.forEach(el=>{ if(el.getBoundingClientRect().top < window.innerHeight-100) el.classList.add("show"); });
+});
+
+// Mouse parallax
+const bg = document.getElementById("bg");
+document.addEventListener("mousemove", e=>{
+  let x = (e.clientX/window.innerWidth-0.5)*30;
+  let y = (e.clientY/window.innerHeight-0.5)*30;
+  bg.style.transform=`translate(${x}px,${y}px)`;
+});
+
+// Glow follow
+const glow = document.getElementById("glow");
+document.addEventListener("mousemove", e=>{
+  glow.style.left = e.clientX-150 + "px";
+  glow.style.top = e.clientY-150 + "px";
+});
+
+// Particles
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let particles=[];
+for(let i=0;i<60;i++){ particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,d:Math.random()*1}); }
+function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="rgba(143,191,159,0.3)";
+  particles.forEach(p=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    p.y+=p.d;
+    if(p.y>canvas.height){ p.y=0; p.x=Math.random()*canvas.width; }
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Resize fix
+window.addEventListener("resize", ()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+</script>
+
+</body>
+</html>

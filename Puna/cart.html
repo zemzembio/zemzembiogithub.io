@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Zem Zem Bio</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body{
+      font-family:Inter;
+      background:#050705;
+      color:#e5e5e5;
+      overflow-x:hidden;
+    }
+
+    /* GLASS */
+    .glass{
+      background:rgba(255,255,255,0.05);
+      backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    /* BUTTON */
+    .btn{
+      background:linear-gradient(135deg,#8fbf9f,#a8d5b5);
+      color:black;
+      transition:0.3s;
+    }
+    .btn:hover{
+      transform:scale(1.05);
+      box-shadow:0 0 25px rgba(143,191,159,0.5);
+    }
+
+    /* INPUT */
+    .input{
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      padding:12px;
+      border-radius:12px;
+    }
+    .input:focus{
+      border-color:#8fbf9f;
+      box-shadow:0 0 15px rgba(143,191,159,0.4);
+    }
+
+    /* ANIMATION */
+    .fade{
+      opacity:0;
+      transform:translateY(50px);
+      transition:1s ease;
+    }
+    .fade.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="fixed w-full z-50 glass">
+  <div class="max-w-7xl mx-auto flex justify-between items-center p-4">
+    <img src="logo.png" style="width:60px;height:60px;">
+    <h1 class="text-xl">Zem Zem Bio Produkt</h1>
+    <a href="index.html" class="btn px-5 py-2 rounded-full">Kthehu</a>
+  </div>
+</header>
+
+<div class="h-24"></div>
+
+<!-- MAIN -->
+<section class="max-w-5xl mx-auto px-4 py-10">
+
+  <div class="grid md:grid-cols-2 gap-8">
+
+    <!-- LEFT - CART -->
+    <div class="glass p-6 rounded-2xl fade">
+      <h2 class="text-2xl font-bold mb-4">🛒 Shporta juaj</h2>
+
+      <div id="cart-list" class="space-y-2 mb-4"></div>
+
+      <div class="border-t border-gray-700 pt-4 flex justify-between text-lg font-bold">
+        <span>Total:</span>
+        <span>€<span id="total">0</span></span>
+      </div>
+    </div>
+
+    <!-- RIGHT - FORM -->
+    <div class="glass p-6 rounded-2xl fade">
+      <h2 class="text-2xl font-bold mb-4">📦 Të dhënat e klientit</h2>
+
+      <form id="checkout-form" class="space-y-3">
+        <input type="text" id="name" placeholder="Emri" class="input w-full" required>
+        <input type="text" id="surname" placeholder="Mbiemri" class="input w-full" required>
+        <input type="tel" id="phone" placeholder="Numri i telefonit" class="input w-full" required>
+        <input type="text" id="address" placeholder="Adresa" class="input w-full" required>
+
+        <button type="submit" class="btn w-full py-3 rounded-xl mt-2">
+          Dërgo në WhatsApp
+        </button>
+      </form>
+      <div id="success" class="hidden mt-4 text-green-400 font-bold text-center">
+        ✅ Porosia u hap në WhatsApp!
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("checkoutCart")) || [];
+
+function removeItem(index){
+  cart.splice(index,1);
+  localStorage.setItem("checkoutCart", JSON.stringify(cart));
+  renderCart();
+}
+
+function renderCart(){
+  const listDiv = document.getElementById("cart-list");
+
+  if(cart.length===0){
+    listDiv.innerHTML="<p class='text-gray-400'>Shporta është bosh</p>";
+    document.getElementById("total").innerText = "0";
+    return;
+  }
+
+  let html="";
+  let total=0;
+
+  cart.forEach((item,index)=>{
+    total+=item.p;
+    html+=`
+      <div class="flex justify-between items-center glass p-3 rounded">
+        <div>
+          <p>${item.n}</p>
+          <span class="text-sm text-gray-400">€${item.p}</span>
+        </div>
+        <button onclick="removeItem(${index})" class="text-red-400 font-bold">X</button>
+      </div>
+    `;
+  });
+
+  listDiv.innerHTML=html;
+  document.getElementById("total").innerText=total;
+}
+
+document.getElementById("checkout-form").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const surname = document.getElementById("surname").value;
+  const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
+
+  let message = `Porosia nga ${name} ${surname}
+Numri: ${phone}
+Adresa: ${address}
+
+Produkte:
+`;
+
+cart.forEach(p=>{
+  message += `- ${p.n} (${p.p}€)\n`;
+});
+
+let encodedMessage = encodeURIComponent(message);
+
+// ⚠️ vendos numrin pa + dhe pa 0
+const whatsappNumber = "38344175847"; 
+
+window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, "_blank");
+});
+
+/* FADE ANIMATION */
+window.addEventListener("load", ()=>{
+  document.querySelectorAll(".fade").forEach((el,i)=>{
+    setTimeout(()=>el.classList.add("show"), i*200);
+  });
+});
+
+renderCart();
+</script>
+
+</body>
+</html>
